@@ -10,26 +10,45 @@ class TranslationInputForm extends StatefulWidget {
 class _TranslationInputFormState extends State<TranslationInputForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  String currentInput = '';
+
+  handleSubmitPressed() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState?.save();
+    }
+  }
+
+  handleTextSaved(String? input) {
+    print(input);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              TextFormField(
-                decoration: const InputDecoration(hintText: "Enter the text in Swedish"),
-                validator: (String? input) {
-                  if(input == null) {
-                    return "Please input some text for translation";
-                  }
-                  return null;
-                },
+        child: Padding(padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  TextFormField(
+                    decoration: const InputDecoration(hintText: 'Enter the text in Swedish'),
+                    onSaved: handleTextSaved,
+                    validator: (String? input) {
+                      if(input == null) {
+                        return 'Please input some text for translation';
+                      }
+                      return null;
+                    },
+                  ),
+                  ElevatedButton(
+                      onPressed: handleSubmitPressed,
+                      child: const Text('Search Text')
+                  )
+                ],
               )
-            ],
-          )
-      )
+          ),
+        )
     );
   }
 
