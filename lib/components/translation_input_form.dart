@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:translate_swedish/config/network_manager.dart';
 
 class TranslationInputForm extends StatefulWidget {
   const TranslationInputForm({Key? key}) : super(key: key);
@@ -18,8 +19,13 @@ class _TranslationInputFormState extends State<TranslationInputForm> {
     }
   }
 
-  handleTextSaved(String? input) {
-    print(input);
+  handleTextSaved(String? input) async {
+    if (input != null) {
+      final response = await API.getTranslation(input);
+      response?.data?.translations?.forEach((element) {
+        print(element.translatedText);
+      });
+    }
   }
 
   @override

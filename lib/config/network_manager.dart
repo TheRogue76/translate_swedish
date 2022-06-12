@@ -11,9 +11,9 @@ class API {
       'Content-Type': 'application/json; charset=utf-8',
     };
     dio.options.responseType = ResponseType.json;
-    final response = await dio.get<TranslationResponse>(GoogleTranslateEndpoint.translationEndPoint(input: input));
+    final response = await dio.get(GoogleTranslateEndpoint.translationEndPoint(input: input));
     if (response.statusCode == 200) {
-      return response.data;
+      return TranslationResponse.fromJson(response.data);
     } else {
       throw Exception('Failed to get the data');
     }
