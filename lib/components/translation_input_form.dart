@@ -11,7 +11,7 @@ class TranslationInputForm extends StatefulWidget {
 class _TranslationInputFormState extends State<TranslationInputForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  String currentInput = '';
+  String currentOutput = '';
 
   handleSubmitPressed() {
     if (_formKey.currentState!.validate()) {
@@ -22,9 +22,11 @@ class _TranslationInputFormState extends State<TranslationInputForm> {
   handleTextSaved(String? input) async {
     if (input != null) {
       final response = await API.getTranslation(input);
-      response?.data?.translations?.forEach((element) {
-        print(element.translatedText);
-      });
+      if (response?.data?.translations?.isNotEmpty ?? false) {
+        setState(() {
+          currentOutput = response?.data?.translations?[0].translatedText ?? '';
+        });
+      }
     }
   }
 
@@ -32,28 +34,32 @@ class _TranslationInputFormState extends State<TranslationInputForm> {
   Widget build(BuildContext context) {
     return Center(
         child: Padding(padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  TextFormField(
-                    decoration: const InputDecoration(hintText: 'Enter the text in Swedish'),
-                    onSaved: handleTextSaved,
-                    validator: (String? input) {
-                      if(input == null) {
-                        return 'Please input some text for translation';
-                      }
-                      return null;
-                    },
-                  ),
-                  ElevatedButton(
-                      onPressed: handleSubmitPressed,
-                      child: const Text('Search Text')
-                  )
-                ],
-              )
-          ),
+          child: Column(children: <Widget>[
+              Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    TextFormField(
+                      decoration: const InputDecoration(hintText: 'Enter the text in Swedish'),
+                      onSaved: handleTextSaved,
+                      validator: (String? input) {
+                        if(input == null) {
+                          return 'Please input some text for translation';
+                        }
+                        return null;
+                      },
+                    ),
+                    ElevatedButton(
+                        onPressed: handleSubmitPressed,
+                        child: const Text('Search Text')
+                    )
+                  ],
+                )
+              ),
+              Text(currentOutput)
+            ],
+          )
         )
     );
   }
