@@ -31,20 +31,15 @@ class MediaService {
     }
   }
 
-  Future<List<String>> getText(String path) async {
+  Future<List<String>> getTranslatedText(String path) async {
     final inputImage = InputImage.fromFilePath(path);
     final textDetector = await _recognizer.processImage(inputImage);
-    List<String> recognizedSwedishList = [];
     List<String> recognizedTranslatedList = [];
     for (TextBlock block in textDetector.blocks) {
-      recognizedSwedishList.add(
-        block.text
-      );
       recognizedTranslatedList.add(
         await _onDeviceTranslator.translateText(block.text)
       );
     }
-    print(recognizedTranslatedList);
-    return recognizedSwedishList;
+    return recognizedTranslatedList;
   }
 }

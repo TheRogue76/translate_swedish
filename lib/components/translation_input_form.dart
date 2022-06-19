@@ -16,6 +16,7 @@ class _TranslationInputFormState extends State<TranslationInputForm> {
   final MediaService _mediaService = MediaService();
 
   String currentOutput = '';
+  List<String> outputsOfImage = [];
 
   handleSubmitPressed() {
     if (_formKey.currentState!.validate()) {
@@ -38,8 +39,8 @@ class _TranslationInputFormState extends State<TranslationInputForm> {
     try {
       final image = await _mediaService.pickFromGallery();
       if (image != null && image.imagePath != null) {
-        final texts = await _mediaService.getText(image.imagePath!);
-        print(texts);
+        outputsOfImage = await _mediaService.getTranslatedText(image.imagePath!);
+        setState(() {});
       }
     } catch(e) {
       print(e);
@@ -78,7 +79,8 @@ class _TranslationInputFormState extends State<TranslationInputForm> {
               ElevatedButton(
                   onPressed: handleImagePickerPressed,
                   child: const Text('Scan image')
-              )
+              ),
+              ...outputsOfImage.map((e) => Text(e)).toList(),
             ],
           )
         )
