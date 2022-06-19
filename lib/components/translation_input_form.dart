@@ -59,7 +59,7 @@ class _TranslationInputFormState extends State<TranslationInputForm> {
 
   handleCameraPickerPressed() async {
     try {
-      final image = await _mediaService.pickFromGallery();
+      final image = await _mediaService.pickFromCamera();
       if (image != null && image.imagePath != null) {
         await translateImageFromPath(image.imagePath!);
       }
