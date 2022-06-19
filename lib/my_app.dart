@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'dart:io' show Platform;
+
 import 'package:translate_swedish/pages/home_page.dart';
 
 class MyApp extends StatelessWidget {
@@ -6,12 +9,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    if (Platform.isAndroid) {
+      return MaterialApp(
+        title: 'Translate Swedish',
+        theme: ThemeData(
+          primarySwatch: Colors.blueGrey,
+          brightness: Brightness.light,
+        ),
+        home: const MyHomePage(),
+      );
+    }
+    return const CupertinoApp(
       title: 'Translate Swedish',
-      theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
+      theme: CupertinoThemeData(
+        barBackgroundColor: Colors.blueGrey,
+        primaryColor: Colors.blueGrey,
+        brightness: Brightness.light,
       ),
-      home: const MyHomePage(),
+      home: MyHomePage(),
     );
   }
 }

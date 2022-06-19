@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:translate_swedish/components/app_button.dart';
 import 'package:translate_swedish/config/network_manager.dart';
 import 'package:translate_swedish/services/media_service.dart';
 
@@ -10,21 +14,20 @@ class TranslationInputForm extends StatefulWidget {
 }
 
 class _TranslationInputFormState extends State<TranslationInputForm> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _controller = TextEditingController(text: '');
 
   final MediaService _mediaService = MediaService();
 
+  String currentInput = '';
   String currentOutput = '';
   List<String> inputOfImage = [];
   List<String> outputsOfImage = [];
 
-  handleSubmitPressed() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState?.save();
-    }
+  handleTextChange(String? input) {
+    currentInput = input ?? '';
   }
 
-  handleTextSaved(String? input) async {
+  handleTextSubmitted(String? input) async {
     if (input != null) {
       final response = await API.getTranslation(input);
       if (response?.data?.translations?.isNotEmpty ?? false) {
@@ -35,13 +38,17 @@ class _TranslationInputFormState extends State<TranslationInputForm> {
     }
   }
 
+  handleTextSubmitButtonChanged() {
+    handleTextSubmitted(currentInput);
+  }
+
   translateImageFromPath(String path) async {
     try {
       final result = await _mediaService.getTranslatedText(path);
       inputOfImage = result[Languages.swedish]!;
       outputsOfImage = result[Languages.english]!;
       setState(() {});
-    } catch(_) {
+    } catch (_) {
       print('Could not translate from file');
     }
   }
@@ -52,7 +59,7 @@ class _TranslationInputFormState extends State<TranslationInputForm> {
       if (image != null && image.imagePath != null) {
         await translateImageFromPath(image.imagePath!);
       }
-    } catch(_) {
+    } catch (_) {
       print('Could not fetch image');
     }
   }
@@ -63,71 +70,85 @@ class _TranslationInputFormState extends State<TranslationInputForm> {
       if (image != null && image.imagePath != null) {
         await translateImageFromPath(image.imagePath!);
       }
-    } catch(_) {
+    } catch (_) {
       print('Could not fetch image');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-          child: ListView(
-              primary: false,
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-              children: <Widget>[
-              Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    TextFormField(
-                      decoration: const InputDecoration(hintText: 'Enter the text in Swedish'),
-                      onSaved: handleTextSaved,
-                      validator: (String? input) {
-                        if(input == null) {
-                          return 'Please input some text for translation';
-                        }
-                        return null;
-                      },
-                    ),
-                    ElevatedButton(
-                        onPressed: handleSubmitPressed,
-                        child: const Text('Search Text')
-                    )
-                  ],
-                )
+    return ListView(
+      primary: false,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      children: <Widget>[
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            if (Platform.isAndroid) ...[
+              TextFormField(
+                decoration: const InputDecoration(
+                    hintText: 'Enter the text in Swedish'),
+                onChanged: handleTextChange,
+                onFieldSubmitted: handleTextSubmitted,
+                controller: _controller,
+                validator: (String? input) {
+                  if (input == null) {
+                    return 'Please input some text for translation';
+                  }
+                  return null;
+                },
               ),
-              Text(currentOutput,
-                textAlign: TextAlign.center,
+            ] else ...[
+              CupertinoSearchTextField(
+                autofocus: true,
+                placeholder: 'Enter the text in Swedish',
+                onChanged: handleTextChange,
+                onSubmitted: handleTextSubmitted,
+                controller: _controller,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                    child:
-                    ElevatedButton(
-                        onPressed: handleGalleryPickerPressed,
-                        child: const Text('Read from Gallery')
-                    ),
-                  ),
-                  ElevatedButton(
-                      onPressed: handleCameraPickerPressed,
-                      child: const Text('Read from Camera')
-                  ),
-                ],
-              ),
-              ...inputOfImage.map((e) => Text(e,
-                textAlign: TextAlign.center,
-              )).toList(),
-              ...outputsOfImage.map((e) => Text(e,
-                textAlign: TextAlign.center,
-              )).toList(),
             ],
-          )
-        );
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+              child: AppButton(
+                onPressed: handleTextSubmitButtonChanged,
+                child: const Text('Search Text'),
+              ),
+            ),
+          ],
+        ),
+        Text(
+          currentOutput,
+          textAlign: TextAlign.center,
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+              child: AppButton(
+                  onPressed: handleGalleryPickerPressed,
+                  child: const Text('Read from Gallery')),
+            ),
+            AppButton(
+                onPressed: handleCameraPickerPressed,
+                child: const Text('Read from Camera')),
+          ],
+        ),
+        ...inputOfImage
+            .map((e) => Text(
+                  e,
+                  textAlign: TextAlign.center,
+                ))
+            .toList(),
+        ...outputsOfImage
+            .map((e) => Text(
+                  e,
+                  textAlign: TextAlign.center,
+                ))
+            .toList(),
+      ],
+    );
   }
-
 }
