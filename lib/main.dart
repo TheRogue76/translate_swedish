@@ -6,9 +6,8 @@ import 'package:translate_swedish/my_app.dart';
 void main() async {
   await dotenv.load(fileName: '.env');
   final translatorModelManager = OnDeviceTranslatorModelManager();
-  final bool isModelDownloaded = await translatorModelManager.isModelDownloaded(TranslateLanguage.swedish.bcpCode);
-  if (!isModelDownloaded) {
-    await translatorModelManager.downloadModel(TranslateLanguage.swedish.bcpCode);
-  }
+  translatorModelManager.isModelDownloaded(TranslateLanguage.swedish.bcpCode).then((isModelDownloaded) => {
+    translatorModelManager.downloadModel(TranslateLanguage.swedish.bcpCode)
+  });
   runApp(const MyApp());
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:translate_swedish/config/network_manager.dart';
 import 'package:translate_swedish/services/media_service.dart';
 
@@ -16,6 +15,7 @@ class _TranslationInputFormState extends State<TranslationInputForm> {
   final MediaService _mediaService = MediaService();
 
   String currentOutput = '';
+  List<String> inputOfImage = [];
   List<String> outputsOfImage = [];
 
   handleSubmitPressed() {
@@ -39,7 +39,9 @@ class _TranslationInputFormState extends State<TranslationInputForm> {
     try {
       final image = await _mediaService.pickFromGallery();
       if (image != null && image.imagePath != null) {
-        outputsOfImage = await _mediaService.getTranslatedText(image.imagePath!);
+        final result = await _mediaService.getTranslatedText(image.imagePath!);
+        inputOfImage = result[Languages.swedish]!;
+        outputsOfImage = result[Languages.english]!;
         setState(() {});
       }
     } catch(e) {
@@ -80,6 +82,7 @@ class _TranslationInputFormState extends State<TranslationInputForm> {
                   onPressed: handleImagePickerPressed,
                   child: const Text('Scan image')
               ),
+              ...inputOfImage.map((e) => Text(e)).toList(),
               ...outputsOfImage.map((e) => Text(e)).toList(),
             ],
           )

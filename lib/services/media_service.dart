@@ -3,6 +3,13 @@ import 'package:google_mlkit_translation/google_mlkit_translation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:translate_swedish/models/image_model.dart';
 
+enum Languages {
+  swedish,
+  english
+}
+
+typedef TextTranslations = Map<Languages, List<String>>;
+
 class MediaService {
   final ImagePicker _picker = ImagePicker();
   final TextRecognizer _recognizer = TextRecognizer();
@@ -31,15 +38,22 @@ class MediaService {
     }
   }
 
-  Future<List<String>> getTranslatedText(String path) async {
+  Future<TextTranslations> getTranslatedText(String path) async {
     final inputImage = InputImage.fromFilePath(path);
     final textDetector = await _recognizer.processImage(inputImage);
+    List<String> recognizedSwedishList = [];
     List<String> recognizedTranslatedList = [];
     for (TextBlock block in textDetector.blocks) {
+      recognizedSwedishList.add(
+        block.text
+      );
       recognizedTranslatedList.add(
         await _onDeviceTranslator.translateText(block.text)
       );
     }
-    return recognizedTranslatedList;
+    return {
+      Languages.swedish: recognizedSwedishList,
+      Languages.english: recognizedTranslatedList,
+    };
   }
 }
