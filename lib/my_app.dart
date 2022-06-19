@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
         title: 'Translate Swedish',
         theme: ThemeData(
           primarySwatch: Colors.blueGrey,
+          brightness: Brightness.light,
         ),
         home: const MyHomePage(),
       );
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
       theme: CupertinoThemeData(
         barBackgroundColor: Colors.blueGrey,
         primaryColor: Colors.blueGrey,
+        brightness: Brightness.light,
       ),
       home: MyHomePage(),
     );
