@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:translate_swedish/config/network_manager.dart';
+import 'package:translate_swedish/services/media_service.dart';
 
 class TranslationInputForm extends StatefulWidget {
   const TranslationInputForm({Key? key}) : super(key: key);
@@ -10,6 +12,8 @@ class TranslationInputForm extends StatefulWidget {
 
 class _TranslationInputFormState extends State<TranslationInputForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final MediaService _mediaService = MediaService();
 
   String currentOutput = '';
 
@@ -27,6 +31,19 @@ class _TranslationInputFormState extends State<TranslationInputForm> {
           currentOutput = response?.data?.translations?[0].translatedText ?? '';
         });
       }
+    }
+  }
+
+  handleImagePickerPressed() async {
+    try {
+      final image = await _mediaService.pickFromGallery();
+      if (image != null && image.imagePath != null) {
+        final texts = await _mediaService.getText(image.imagePath!);
+        print(texts);
+      }
+    } catch(e) {
+      print(e);
+      print('Error fetching image');
     }
   }
 
@@ -57,7 +74,11 @@ class _TranslationInputFormState extends State<TranslationInputForm> {
                   ],
                 )
               ),
-              Text(currentOutput)
+              Text(currentOutput),
+              ElevatedButton(
+                  onPressed: handleImagePickerPressed,
+                  child: const Text('Scan image')
+              )
             ],
           )
         )
