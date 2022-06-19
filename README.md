@@ -1,16 +1,7 @@
 # translate_swedish
 
-A simple Swedish translator app
+A Simple translation app for Swedish to English written in flutter. It uses GCP cloud translation API for the text input translations and Google MLKit for text recognition and translation on device.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+If you want to use this project locally, then add your GCP cloud API translation key to the `example.env` file (found in root directory) and then rename it to `.env`. Then you can go through the process of installing the app, same as any other flutter project. Be warned however that due to the limitations of MLKit, this code will run only on 64 bit devices on iOS and has a minimum API requirement of 21 on Android
