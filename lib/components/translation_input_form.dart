@@ -35,29 +35,50 @@ class _TranslationInputFormState extends State<TranslationInputForm> {
     }
   }
 
-  handleImagePickerPressed() async {
+  translateImageFromPath(String path) async {
+    try {
+      final result = await _mediaService.getTranslatedText(path);
+      inputOfImage = result[Languages.swedish]!;
+      outputsOfImage = result[Languages.english]!;
+      setState(() {});
+    } catch(_) {
+      print('Could not translate from file');
+    }
+  }
+
+  handleGalleryPickerPressed() async {
     try {
       final image = await _mediaService.pickFromGallery();
       if (image != null && image.imagePath != null) {
-        final result = await _mediaService.getTranslatedText(image.imagePath!);
-        inputOfImage = result[Languages.swedish]!;
-        outputsOfImage = result[Languages.english]!;
-        setState(() {});
+        await translateImageFromPath(image.imagePath!);
       }
-    } catch(e) {
-      print(e);
-      print('Error fetching image');
+    } catch(_) {
+      print('Could not fetch image');
+    }
+  }
+
+  handleCameraPickerPressed() async {
+    try {
+      final image = await _mediaService.pickFromGallery();
+      if (image != null && image.imagePath != null) {
+        await translateImageFromPath(image.imagePath!);
+      }
+    } catch(_) {
+      print('Could not fetch image');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: Padding(padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          child: Column(children: <Widget>[
+          child: ListView(
+              primary: false,
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+              children: <Widget>[
               Form(
                 key: _formKey,
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     TextFormField(
@@ -77,17 +98,36 @@ class _TranslationInputFormState extends State<TranslationInputForm> {
                   ],
                 )
               ),
-              Text(currentOutput),
-              ElevatedButton(
-                  onPressed: handleImagePickerPressed,
-                  child: const Text('Scan image')
+              Text(currentOutput,
+                textAlign: TextAlign.center,
               ),
-              ...inputOfImage.map((e) => Text(e)).toList(),
-              ...outputsOfImage.map((e) => Text(e)).toList(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                    child:
+                    ElevatedButton(
+                        onPressed: handleGalleryPickerPressed,
+                        child: const Text('Read from Gallery')
+                    ),
+                  ),
+                  ElevatedButton(
+                      onPressed: handleCameraPickerPressed,
+                      child: const Text('Read from Camera')
+                  ),
+                ],
+              ),
+              ...inputOfImage.map((e) => Text(e,
+                textAlign: TextAlign.center,
+              )).toList(),
+              ...outputsOfImage.map((e) => Text(e,
+                textAlign: TextAlign.center,
+              )).toList(),
             ],
           )
-        )
-    );
+        );
   }
 
 }
